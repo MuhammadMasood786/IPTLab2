@@ -1,0 +1,167 @@
+<html>
+  <head>
+    <title>Marksheet</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  </head>
+
+  <body>
+    <h1>Marksheet</h1>
+    <div>
+      <table>
+        <tr>
+          <td>
+            <table>
+              <tr>
+                <td>
+                  <span>Enter the name of student :</span>
+                </td>
+                <td>
+                  <input type="text" id="nameOfStudent" />
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <span>Enter the number of subjects : </span>
+                </td>
+                <td>
+                  <input
+                    type="number"
+                    id="noOfSubjects"
+                    min="1"
+                    onchange="TotalSubject()"
+                    onkeyup="TotalSubject()"
+                  />
+                </td>
+              </tr>
+              <tr>
+                <td colspan="2">
+                  <span onclick="Calculate()" class="customButton"
+                    >Calculate</span
+                  >
+                </td>
+              </tr>
+            </table>
+          </td>
+          <td>
+            <table>
+              <tr>
+                <td>
+                  <span>Min Marks Subject: </span>
+                </td>
+                <td>
+                  <input type="text" id="minMarksSubject" readonly="readonly" />
+                </td>
+                <td>
+                  <span>Min Marks: </span>
+                </td>
+                <td>
+                  <input type="text" id="minMarks" readonly="readonly" />
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <span>Max Marks Subject: </span>
+                </td>
+                <td>
+                  <input type="text" id="maxMarksSubject" readonly="readonly" />
+                </td>
+                <td>
+                  <span>Max Marks: </span>
+                </td>
+                <td>
+                  <input type="text" id="maxMarks" readonly="readonly" />
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <span>Percentage : </span>
+                </td>
+                <td>
+                  <input type="text" id="percentage" readonly="readonly" />
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+    </div>
+    <hr />
+    <div>
+      <table id="inputTable"></table>
+    </div>
+  </body>
+  <script>
+
+    function Calculate() {
+
+        var SubjectMarks = [];
+        var noOfSubjects = $('#noOfSubjects').val();
+
+        for ( i = 0; i < noOfSubjects; i++) {
+            var subjectName = $('#subjectName').val();
+            var subjectMarksObtained =$('#subjectMarksObtained'+i).val();
+
+            var student = new Object();
+            student.subjectName = subjectName;
+            student.subjectMarksObtained = subjectMarksObtained
+
+            SubjectMarks.push(student);
+
+        }
+        var requeststr =JSON.stringify(SubjectMarks)
+        console.log(requeststr)
+    
+        $.ajax({
+                url:"https://localhost:44366/markSheet.asmx/=Calculate",
+                method: "GET",
+                contentType: "application/json",
+                data: {
+                    SubjectMarks : JSON.stringify(SubjectMarks)
+                },
+                success:function(data){
+                    var result = JSON.parse(data.d)
+                    console.log(result)
+
+                    $("#minMarksSubject").val(result.MinSubject.Name)
+                    $("#maxMarksSubject").val(result.MaxSubject.Name)
+                    $("#minMarks").val(result.MinSubject.ObtainMarks)
+                    $("#maxMarks").val(result.MaxSubject.ObtainMarks)
+                    $("#percentage").val(result.Percentage)
+                }
+            });
+    }
+
+    function TotalSubject() {
+        var noOfSubjects = $('#noOfSubjects').val();
+
+        var h = '';
+        for (i = 0; i < noOfSubjects; i++) {
+            h += '<tr>';
+
+            h += '<td>';
+            h += '<span>Subject ' + (i + 1) + ' -> </span>';
+            h += '</td>';
+
+            h += '<td>';
+            h += '<span>Name :</span>';
+            h += '</td>';
+
+            h += '<td>';
+            h += '<input type="text" id="subjectName' + i + '"/>';
+            h += '</td>';
+
+            h += '<td>';
+            h += '<span>Marks Obtained :</span>';
+            h += '</td>';
+
+            h += '<td>';
+            h += '<input type="number" min="0" max="100" id="subjectMarksObtained' + i + '"/>';
+            h += '</td>';
+
+            h += '</tr>';
+        }
+
+        $('#inputTable').html(h);
+    }
+  </script>
+</html>
